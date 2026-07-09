@@ -9,21 +9,21 @@ from clients import call_py
 from core.api import fetch_youtube_link
 from core.guards import check_abuse, is_admin
 from core.playback import play_music_core
-
+from core.helpers import format_text  # Import this!
 
 async def play_command(client, message):
     chat_id = message.chat.id
 
     if await check_abuse(message.from_user.id):
-        return await message.reply_text("⏳ **Slow down.**")
+        return await message.reply_text(format_text("⏳ Slow down."))
 
     query = " ".join(message.command[1:])
     requester = message.from_user.mention
 
     if not query:
-        return await message.reply_text("❌ **Usage:** `/play <song name or url>`")
+        return await message.reply_text(format_text("❌ Usage: /play <song name or url>"))
 
-    status_msg = await message.reply_text("🔎 **Searching...**")
+    status_msg = await message.reply_text(format_text("🔎 Searching..."))
 
     if "youtu.be" in query:
         m = re.search(r"youtu\.be/([^?&]+)", query)
@@ -32,7 +32,7 @@ async def play_command(client, message):
 
     result = await fetch_youtube_link(query)
     if not result:
-        return await status_msg.edit_text("❌ No results found.")
+        return await status_msg.edit_text(format_text("❌ No results found."))
 
     song_info = {
         "title": result.get("title"),
@@ -54,19 +54,17 @@ async def play_command(client, message):
     else:
         queue_pos = len(state.chat_queues[chat_id]) - 1
         queue_text = (
-            f"<b>✨ ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ:</b>\n\n"
-            f"<b>❍ ᴛɪᴛʟᴇ:</b> {song_info['title']}\n"
-            f"<b>❍ ᴘᴏsɪᴛɪᴏɴ:</b> {queue_pos}"
+            f"✨ ᴀᴅᴅᴇᴅ ᴛᴏ ǫᴜᴇᴜᴇ:\n\n"
+            f"❍ ᴛɪᴛʟᴇ: {song_info['title']}\n"
+            f"❍ ᴘᴏsɪᴛɪᴏɴ: {queue_pos}"
         )
         await status_msg.edit_text(
-            queue_text,
-            parse_mode=ParseMode.HTML,
+            format_text(queue_text), # Applying font here
             reply_markup=InlineKeyboardMarkup([[
                 InlineKeyboardButton("⏭ Skip", callback_data="skip"),
                 InlineKeyboardButton("🗑 Clear", callback_data="clear"),
             ]]),
         )
-
 
 async def stop_command(client, message):
     chat_id = message.chat.id
@@ -81,8 +79,7 @@ async def stop_command(client, message):
         await call_py.leave_call(chat_id)
     except Exception:
         pass
-    await message.reply_text("⏹ **Stopped playback.**")
-
+    await message.reply_text(format_text("⏹ Stopped playback."))
 
 async def skip_command(client, message):
     chat_id = message.chat.id
@@ -102,17 +99,16 @@ async def skip_command(client, message):
             except Exception:
                 pass
         if state.chat_queues[chat_id]:
-            await message.reply_text("⏭ **Skipping...**")
+            await message.reply_text(format_text("⏭ Skipping..."))
             await play_music_core(client, chat_id, state.chat_queues[chat_id][0])
         else:
             try:
                 await call_py.leave_call(chat_id)
             except Exception:
                 pass
-            await message.reply_text("✅ **Queue ended.**")
+            await message.reply_text(format_text("✅ Queue ended."))
     else:
-        await message.reply_text("❌ **Nothing to skip.**")
-
+        await message.reply_text(format_text("❌ Nothing to skip."))
 
 async def clear_command(client, message):
     chat_id = message.chat.id
@@ -120,10 +116,9 @@ async def clear_command(client, message):
         return
     if chat_id in state.chat_queues and len(state.chat_queues[chat_id]) > 1:
         state.chat_queues[chat_id] = [state.chat_queues[chat_id][0]]
-        await message.reply_text("🗑 **Queue cleared.**")
+        await message.reply_text(format_text("🗑 Queue cleared."))
     else:
-        await message.reply_text("❌ **Queue is already empty.**")
-
+        await message.reply_text(format_text("❌ Queue is already empty."))
 
 async def pause_command(client, message):
     if not await is_admin(client, message.chat.id, message.from_user.id):
@@ -131,10 +126,9 @@ async def pause_command(client, message):
     try:
         await call_py.pause(message.chat.id)
         state.paused_chats.add(message.chat.id)
-        await message.reply_text("⏸ **Paused.**")
+        await message.reply_text(format_text("⏸ Paused."))
     except Exception:
         pass
-
 
 async def resume_command(client, message):
     if not await is_admin(client, message.chat.id, message.from_user.id):
@@ -142,6 +136,7 @@ async def resume_command(client, message):
     try:
         await call_py.resume(message.chat.id)
         state.paused_chats.discard(message.chat.id)
-        await message.reply_text("▶️ **Resumed.**")
+        await message.reply_text(format_text("▶️ Resumed."))
     except Exception:
         pass
+
