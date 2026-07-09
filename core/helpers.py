@@ -1,6 +1,22 @@
 import isodate
 from config import MAX_TITLE_LEN
 
+# --- NEW FONT CONVERTER FUNCTIONS ---
+def to_small_caps(text: str) -> str:
+    """Converts normal text to Small Caps font style."""
+    if not isinstance(text, str):
+        text = str(text)
+    normal_chars = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"
+    fancy_chars  = "ᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘqʀꜱᴛᴜᴠᴡxʏᴢᴀʙᴄᴅᴇꜰɢʜɪᴊᴋʟᴍɴᴏᴘQʀꜱᴛᴜᴠᴡxʏᴢ"
+    mapping = str.maketrans(normal_chars, fancy_chars)
+    return text.translate(mapping)
+
+def format_text(text: str, is_start: bool = False) -> str:
+    """Helper to apply font formatting. If is_start is True, keeps original text."""
+    if is_start or not isinstance(text, str):
+        return text
+    return to_small_caps(text)
+# ------------------------------------
 
 def to_bold_unicode(text):
     maps = {
@@ -15,12 +31,10 @@ def to_bold_unicode(text):
     }
     return "".join(maps.get(c, c) for c in text)
 
-
 def one_line_title(full_title):
     if len(full_title) <= MAX_TITLE_LEN:
         return full_title
     return full_title[: MAX_TITLE_LEN - 1] + "…"
-
 
 def parse_duration_str(duration_str):
     try:
@@ -37,7 +51,6 @@ def parse_duration_str(duration_str):
                 pass
         return 0
 
-
 def format_time(seconds):
     secs = int(seconds)
     m, s = divmod(secs, 60)
@@ -45,7 +58,6 @@ def format_time(seconds):
     if h > 0:
         return f"{h}:{m:02d}:{s:02d}"
     return f"{m}:{s:02d}"
-
 
 def get_progress_bar(elapsed, total, bar_length=14):
     if total <= 0:
@@ -55,7 +67,6 @@ def get_progress_bar(elapsed, total, bar_length=14):
     left = "━" * marker_index
     right = "─" * (bar_length - marker_index - 1)
     return f"{format_time(elapsed)} {left}❄️{right} {format_time(total)}"
-
 
 def get_readable_time(seconds):
     count = 0
