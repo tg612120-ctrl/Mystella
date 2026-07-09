@@ -69,11 +69,12 @@ async def start_handler(client, message):
         [InlineKeyboardButton("➕ Add to Group", url=f"https://t.me/{client.me.username}?startgroup=true")],
         [
             InlineKeyboardButton("📜 Commands", callback_data="show_help"),
-            InlineKeyboardButton("📢 Channel", url="https://t.me/kustbots"),
+            InlineKeyboardButton("📢 Channel", url="https://t.me/stellabotxsupport"),
         ],
         [
-            InlineKeyboardButton("💬 Support", url="https://t.me/kustbots"),
-            InlineKeyboardButton("👤 Owner", url=f"tg://user?id={owner_id}"),
+            InlineKeyboardButton("💬 Support", url="https://t.me/genzportals"),
+            InlineKeyboardButton("👤 Owner", url="https://t.me/izoph"),
+
         ],
     ]
     await message.reply_text(caption, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
