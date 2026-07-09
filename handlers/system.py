@@ -53,21 +53,21 @@ async def start_handler(client, message):
 
     # Screenshot jaisa exact layout, koi extra naam nahi
     caption = (
-        f"<blockquote>HEY {user_mention},🌹</blockquote>\n\n"
-        f"<blockquote>⊙ THIS IS {client.me.first_name} : FAST & POWERFUL TG MUSIC BOT.\n"
-        f"⊙ SMOOTH BEATS • STABLE & SEAMLESS MUSIC FLOW.\n"
-        f"⊙ NEW VERSION WITH SUPER FAST YOUTUBE API BASED.</blockquote>"
+        f"<blockquote>ʜᴇʏ {user_mention},🌹</blockquote>\n\n"
+        f"<blockquote>⊙ ᴛʜɪs ɪs {client.me.first_name} : ғᴀsᴛ & ᴘᴏᴡᴇʀғᴜʟ ᴛɢ ᴍᴜsɪᴄ ʙᴏᴛ.\n"
+        f"⊙ sᴍᴏᴏᴛʜ ʙᴇᴀᴛs • sᴛᴀʙʟᴇ & sᴇᴀᴍʟᴇss ᴍᴜsɪᴄ ғʟᴏᴡ.\n"
+        f"⊙ ɴᴇᴡ ᴠᴇʀsɪᴏɴ ᴡɪᴛʜ sᴜᴘᴇʀ ғᴀsᴛ ʏᴏᴜᴛᴜʙᴇ ᴀᴘɪ ʙᴀsᴇᴅ .</blockquote>"
     )
 
     buttons = [
-        [InlineKeyboardButton("➕ ADD ME IN YOUR GROUP", url=f"https://t.me/{client.me.username}?startgroup=true")],
+        [InlineKeyboardButton("➕ ᴀᴅᴅ ᴍᴇ ɪɴ ʏᴏᴜʀ ɢʀᴏᴜᴘ", url=f"https://t.me/{client.me.username}?startgroup=true")],
         [
-            InlineKeyboardButton("OWNER", url="https://t.me/izoph"),
-            InlineKeyboardButton("ABOUT", callback_data="about_cb"),
+            InlineKeyboardButton("ᴏᴡɴᴇʀ", url="https://t.me/izoph"),
+            InlineKeyboardButton("ᴀʙᴏᴜᴛ", callback_data="about_cb"),
         ],
         [
-            InlineKeyboardButton("SUPPORT", url="https://t.me/genzportals"),
-            InlineKeyboardButton("UPDATE", url="https://t.me/stellabotxsupport"),
+            InlineKeyboardButton("sᴜᴘᴘᴏʀᴛ", url="https://t.me/genzportals"),
+            InlineKeyboardButton("ᴜᴘᴅᴀᴛᴇs", url="https://t.me/stellabotxsupport"),
         ],
     ]
     await message.reply_photo(photo=photo_url, caption=caption, parse_mode=ParseMode.HTML, reply_markup=InlineKeyboardMarkup(buttons))
