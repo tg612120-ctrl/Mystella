@@ -1,4 +1,4 @@
-From pyrogram import filters
+from pyrogram import filters
 from pyrogram.handlers import CallbackQueryHandler, MessageHandler
 
 from handlers.admin import ban_user, kick_user, mute_user, unban_user, unmute_user
