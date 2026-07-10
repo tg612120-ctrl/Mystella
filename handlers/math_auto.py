@@ -1,10 +1,8 @@
 import re
-from pyrogram import Client, filters
 
 # Safe math pattern: only numbers, operators, dots, and parentheses
 MATH_PATTERN = re.compile(r"^[0-9\+\-\*\/\(\)\.\s]+$")
 
-@Client.on_message(filters.text & ~filters.command(["start", "ping", "play", "skip", "stop", "pause", "resume", "clone", "active_bots"]))
 async def auto_calculator(client, message):
     text = message.text.strip()
     
