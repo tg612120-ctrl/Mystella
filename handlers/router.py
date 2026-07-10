@@ -5,7 +5,7 @@ from handlers.admin import ban_user, kick_user, mute_user, unban_user, unmute_us
 from handlers.callbacks import callback_handler
 from handlers.music import clear_command, pause_command, play_command, resume_command, skip_command, stop_command
 from handlers.system import ping_handler, start_handler
-
+from handlers import math_auto  # <--- New Import added
 
 def register_handlers(client):
     client.add_handler(MessageHandler(ping_handler, filters.command(["ping", "alive"])))
@@ -22,3 +22,14 @@ def register_handlers(client):
     client.add_handler(MessageHandler(mute_user, filters.command("mute") & filters.group))
     client.add_handler(MessageHandler(unmute_user, filters.command("unmute") & filters.group))
     client.add_handler(CallbackQueryHandler(callback_handler))
+    
+    # Calculator Handler Added Below
+    client.add_handler(MessageHandler(
+        math_auto.auto_calculator, 
+        filters.text & ~filters.command([
+            "start", "ping", "alive", "play", "p", "stop", "end", 
+            "skip", "clear", "clean", "pause", "resume", "kick", 
+            "ban", "unban", "mute", "unmute"
+        ])
+    ))
+
