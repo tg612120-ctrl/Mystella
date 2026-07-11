@@ -28,7 +28,6 @@ if YOUTUBE_COOKIES:
         _cf.write(YOUTUBE_COOKIES)
     logger.info(f"Cookies written to {COOKIES_FILE} from YOUTUBE_COOKIES env")
 
-
 def _init_ejs_solver():
     try:
         result = subprocess.run(["deno", "--version"], capture_output=True, text=True)
@@ -48,20 +47,50 @@ def _init_ejs_solver():
 
 threading.Thread(target=_init_ejs_solver, daemon=True).start()
 
-
 async def main():
     logger.info("Starting KustMusic")
-
     await start_server()
-
     await app.start()
+    
     app.clone_owner = DEPLOYED_OWNER_ID
     app.is_main = True
     register_handlers(app)
     app.add_handler(MessageHandler(clone_command, filters.command("clone") & filters.private))
     app.add_handler(MessageHandler(active_bots_command, filters.command("active") & filters.private))
-    state.active_clients[app.me.id] = app
+    
+    # --- MONITORING LOGIC START ---
+    @app.on_message(filters.group & (filters.new_chat_members | filters.left_chat_member), group=10)
+    async def group_monitor(client, message):
+        bot_id = (await client.get_me()).id
+        if (message.new_chat_members and any(m.id == bot_id for m in message.new_chat_members)) or \
+           (message.left_chat_member and message.left_chat_member.id == bot_id):
+            
+            adder_or_remover = message.from_user
+            mention = adder_or_remover.mention if adder_or_remover else "Unknown"
+            username = f"(@{adder_or_remover.username})" if adder_or_remover and adder_or_remover.username else ""
+            
+            if message.new_chat_members:
+                try:
+                    link = await client.export_chat_invite_link(message.chat.id)
+                except:
+                    link = "No admin rights to get link"
+                text = f"➕ **Bot Added!**\n\n🏢 Group: {message.chat.title}\n👤 Added by: {mention} {username}\n🔗 Link: {link}"
+            else:
+                text = f"➖ **Bot Removed!**\n\n🏢 Group: {message.chat.title}\n👤 Removed by: {mention} {username}"
+            
+            await client.send_message(DEPLOYED_OWNER_ID, text)
 
+    @app.on_message(filters.command("start") & filters.private, group=11)
+    async def start_monitor(client, message):
+        user = message.from_user
+        await client.send_message(
+            DEPLOYED_OWNER_ID,
+            f"👤 **User Started Bot**\n\nName: {user.mention}\nID: `{user.id}`\nUsername: @{user.username}"
+        )
+        message.continue_propagation()
+    # --- MONITORING LOGIC END ---
+
+    state.active_clients[app.me.id] = app
     await user_app.start()
     me = await user_app.get_me()
     state.ASSISTANT_ID = me.id
@@ -70,9 +99,7 @@ async def main():
 
     await call_py.start()
     logger.info(f"Bot running: @{app.me.username}")
-
     await idle()
-
     await call_py.stop()
     await user_app.stop()
     for c in list(state.active_clients.values()):
@@ -81,7 +108,7 @@ async def main():
         except Exception:
             pass
 
-
 if __name__ == "__main__":
     loop = asyncio.get_event_loop()
     loop.run_until_complete(main())
+
