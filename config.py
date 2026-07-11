@@ -14,3 +14,6 @@ RATE_LIMIT_COUNT = 4
 RATE_LIMIT_WINDOW = 6
 MAX_TITLE_LEN = 30
 PORT = int(os.getenv("PORT", "8080"))
+
+# MongoDB connection string variable
+MONGO_DB_URI = os.getenv("MONGO_DB_URI")
