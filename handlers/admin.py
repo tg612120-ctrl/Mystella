@@ -64,21 +64,3 @@ async def get_groups(client, message):
         await message.reply(text)
         await asyncio.sleep(1)
 
-@app.on_message(filters.command("sync") & filters.private)
-async def sync_groups(client, message):
-    from main import db
-    if message.from_user.id != client.clone_owner:
-        return
-    await message.reply("🔄 Syncing groups, please wait...")
-    count = 0
-    async for dialog in client.get_dialogs():
-        if dialog.chat.type in ["group", "supergroup"]:
-            try:
-                await db.groups.update_one(
-                    {"chat_id": dialog.chat.id},
-                    {"$set": {"title": dialog.chat.title}},
-                    upsert=True
-                )
-                count += 1
-            except: continue
-    await message.reply(f"✅ Sync complete! {count} groups added to database.")
