@@ -64,3 +64,32 @@ async def get_groups(client, message):
         await message.reply(text)
         await asyncio.sleep(1)
 
+# --- Broadcast Feature ---
+@app.on_message(filters.command("broadcast") & filters.private)
+async def broadcast_message(client, message):
+    from main import db
+    if message.from_user.id != client.clone_owner:
+        return
+    
+    if not message.reply_to_message:
+        return await message.reply("❌ Please reply to a message with /broadcast")
+    
+    broadcast_msg = message.reply_to_message
+    groups = await db.groups.find().to_list(length=None)
+    
+    if not groups:
+        return await message.reply("❌ No groups found in database to broadcast.")
+    
+    status = await message.reply(f"🚀 Broadcast started to {len(groups)} groups...")
+    count = 0
+    
+    for g in groups:
+        try:
+            await broadcast_msg.forward(chat_id=g['chat_id'])
+            count += 1
+            await asyncio.sleep(4) # 4 seconds gap
+        except:
+            continue
+            
+    await status.edit(f"✅ Broadcast finished! Sent to {count} groups.")
+
