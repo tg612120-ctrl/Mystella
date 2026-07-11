@@ -1,12 +1,10 @@
 from pyrogram import filters
 from pyrogram.types import ChatPermissions
 from clients import app
-from main import db
 import asyncio
-
 from core.guards import is_admin
 
-# --- Purana Code (Safe hai) ---
+# --- Purana Code ---
 async def kick_user(client, m):
     if not await is_admin(client, m.chat.id, m.from_user.id):
         return
@@ -49,9 +47,12 @@ async def unmute_user(client, m):
         )
         await m.reply_text("🔊 Unmuted.")
 
-# --- Naya /get Feature ---
+# --- Naya /get Feature (Fixed version) ---
 @app.on_message(filters.command("get") & filters.private)
 async def get_groups(client, message):
+    # Circular import fix: db ko yahan function ke andar import kiya hai
+    from main import db
+    
     # Sirf tum access kar paoge
     if message.from_user.id != client.clone_owner:
         return
