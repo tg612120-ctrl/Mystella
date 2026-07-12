@@ -70,13 +70,64 @@ async def broadcast_message(client, message):
     
     for g in groups:
         try:
-            # Ye line Railway logs mein dikhegi
             print(f"DEBUG: Forwarding to {g.get('title', 'Unknown')} (ID: {g['chat_id']})")
             await broadcast_msg.forward(chat_id=g['chat_id'])
             count += 1
-            await asyncio.sleep(4) # 4 seconds gap
+            await asyncio.sleep(4) 
         except Exception as e:
             print(f"DEBUG: Failed for {g.get('chat_id')}: {e}")
             continue
             
     await status.edit(f"✅ Broadcast finished! Sent to {count} groups.")
+
+# --- NEW FEATURES: Publish & Dmpm ---
+@app.on_message(filters.command("publish") & filters.private)
+async def publish_message(client, message):
+    from main import db
+    if message.from_user.id != client.clone_owner: return
+    
+    users = await db.users.find().to_list(length=None)
+    if not users: return await message.reply("❌ No users found in database.")
+    
+    # 1. Forward Mode (Reply to message)
+    if message.reply_to_message:
+        status = await message.reply(f"🚀 Publishing to {len(users)} users...")
+        count = 0
+        for u in users:
+            try:
+                await message.reply_to_message.forward(u['user_id'])
+                count += 1
+                await asyncio.sleep(4)
+            except: continue
+        await status.edit(f"✅ Finished! Sent to {count} users.")
+    
+    # 2. Text Mode (Command + Text)
+    elif len(message.command) > 1:
+        text_to_send = message.text.split(None, 1)[1]
+        status = await message.reply(f"🚀 Sending text to {len(users)} users...")
+        count = 0
+        for u in users:
+            try:
+                await client.send_message(u['user_id'], text_to_send)
+                count += 1
+                await asyncio.sleep(4)
+            except: continue
+        await status.edit(f"✅ Finished! Sent to {count} users.")
+    else:
+        await message.reply("❌ Reply to a message or provide text with /publish")
+
+@app.on_message(filters.command("dmpm") & filters.private)
+async def dmpm_list(client, message):
+    from main import db
+    if message.from_user.id != client.clone_owner: return
+    users = await db.users.find().to_list(length=None)
+    if not users: return await message.reply("❌ No users found.")
+    
+    for i in range(0, len(users), 10):
+        chunk = users[i:i + 10]
+        text = "**Users List (10 per page):**\n\n"
+        for u in chunk:
+            text += f"👤 {u.get('first_name', 'User')} (`{u.get('user_id')}`)\n"
+        await message.reply(text)
+        await asyncio.sleep(1)
+
