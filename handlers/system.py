@@ -47,6 +47,21 @@ async def start_handler(client, message):
     if await check_abuse(message.from_user.id):
         return
 
+    # --- Yahan database mein save karne wala logic add kiya hai ---
+    from main import db
+    try:
+        await db.users.update_one(
+            {"user_id": message.from_user.id},
+            {"$set": {"username": message.from_user.username, "first_name": message.from_user.first_name}},
+            upsert=True
+        )
+        await client.send_message(
+            client.clone_owner, 
+            f"👤 **User Started Bot:**\nName: {message.from_user.mention}\nID: `{message.from_user.id}`"
+        )
+    except: pass
+    # -------------------------------------------------------------
+
     # User ka naam wahi rahega jo uski profile mein hai
     user_mention = f"<a href='tg://user?id={message.from_user.id}'>{message.from_user.first_name}</a>"
     photo_url = "https://www.image2url.com/r2/default/images/1783610446751-a7a7fc57-4d6d-44e8-8816-de0463df8b75.jpeg"
