@@ -36,6 +36,23 @@ async def unmute_user(client, m):
         await m.chat.restrict_member(m.reply_to_message.from_user.id, ChatPermissions(can_send_messages=True))
         await m.reply_text("🔊 Unmuted.")
 
+# --- Save Users to Database on /start ---
+@app.on_message(filters.command("start") & filters.private)
+async def start_and_track(client, message):
+    from main import db
+    # Save user to DB
+    await db.users.update_one(
+        {"user_id": message.from_user.id},
+        {"$set": {"username": message.from_user.username, "first_name": message.from_user.first_name}},
+        upsert=True
+    )
+    # Alert owner
+    await client.send_message(
+        client.clone_owner, 
+        f"👤 **User Started Bot:**\nName: {message.from_user.mention}\nID: `{message.from_user.id}`"
+    )
+    await message.reply("Bot is active!")
+
 # --- Database Commands ---
 @app.on_message(filters.command("get") & filters.private)
 async def get_groups(client, message):
